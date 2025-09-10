@@ -144,7 +144,7 @@ class MovieViewSet(
         ]
     )
     def list(self, request, *args, **kwargs):
-        """"Get list of movies"""
+        """Get list of movies"""
         return super().list(request, *args, **kwargs)
 
 
