@@ -3,10 +3,9 @@ import os
 
 from PIL import Image
 from django.contrib.auth import get_user_model
-from django.test import TestCase
 from django.urls import reverse
 
-from rest_framework.test import APIClient
+from rest_framework.test import APITestCase
 from rest_framework import status
 
 from cinema.models import Movie, MovieSession, CinemaHall, Genre, Actor
@@ -71,9 +70,8 @@ def movie_detail_url(movie_id: int):
     return reverse("cinema:movie-detail", args=[movie_id])
 
 
-class MovieImageUploadTests(TestCase):
+class MovieImageUploadTests(APITestCase):
     def setUp(self):
-        self.client = APIClient()
         self.user = get_user_model().objects.create_superuser(
             "admin@myproject.com", "password"
         )
@@ -164,20 +162,16 @@ class MovieImageUploadTests(TestCase):
         self.assertIn("movie_image", res.data[0].keys())
 
 
-class UnauthenticatedMovieApiTests(TestCase):
-
-    def setUp(self):
-        self.client = APIClient()
+class UnauthenticatedMovieApiTests(APITestCase):
 
     def test_unauthenticated_movie(self):
         res = self.client.get(MOVIE_URL)
         self.assertEqual(res.status_code, status.HTTP_401_UNAUTHORIZED)
 
 
-class AuthenticatedMovieApiTests(TestCase):
+class AuthenticatedMovieApiTests(APITestCase):
 
     def setUp(self):
-        self.client = APIClient()
         self.user = get_user_model().objects.create_user(
             email="test@email.com",
             password="test_password",
@@ -297,10 +291,9 @@ class AuthenticatedMovieApiTests(TestCase):
 
         self.assertEqual(res.status_code, status.HTTP_403_FORBIDDEN)
 
-class AdminMovieAPITest(TestCase):
+class AdminMovieAPITest(APITestCase):
 
     def setUp(self):
-        self.client = APIClient()
         self.user = get_user_model().objects.create_user(
             email="admin@test.email",
             password="admin_test_password",
@@ -316,7 +309,6 @@ class AdminMovieAPITest(TestCase):
         }
 
         res = self.client.post(MOVIE_URL, payload)
-        print(res.data)
 
         movie = Movie.objects.get(id=res.data["id"])
 
